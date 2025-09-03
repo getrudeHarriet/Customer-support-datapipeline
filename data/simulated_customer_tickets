@@ -1,0 +1,51 @@
+# pipeline/generate_dataset.py
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import random
+import os
+
+def generate_fake_tickets(n=500, output_path="data/sample_tickets.csv"):
+    random.seed(42)
+    np.random.seed(42)
+
+    products = ["MobileApp", "WebPortal", "API", "Database"]
+    categories = ["Authentication", "Performance", "UI", "Billing", "Data Integrity"]
+    severities = ["Critical", "High", "Medium", "Low"]
+    descriptions = [
+        "App crashes when logging in",
+        "Payment page is very slow",
+        "Button misaligned on profile page",
+        "Data mismatch between dashboard and export",
+        "API returns 500 error when fetching orders",
+        "User cannot reset password",
+        "Dropdown not working on checkout page",
+        "Database query timeout on report generation",
+    ]
+
+    start_date = datetime(2024, 1, 1)
+    tickets = []
+
+    for i in range(1, n+1):
+        created = start_date + timedelta(days=np.random.randint(0, 365))
+        updated = created + timedelta(hours=np.random.randint(1, 72))
+        tickets.append({
+            "ticket_id": i,
+            "created_at": created,
+            "updated_at": updated,
+            "customer_id": np.random.randint(1000, 2000),
+            "product": random.choice(products),
+            "category": random.choice(categories),
+            "description": random.choice(descriptions),
+            "severity": random.choices(severities, weights=[0.1, 0.2, 0.4, 0.3])[0]
+        })
+
+    df = pd.DataFrame(tickets)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df.to_csv(output_path, index=False)
+    print(f"[INFO] Generated {len(df)} tickets → {output_path}")
+    return df
+
+if __name__ == "__main__":
+    generate_fake_tickets()
+
